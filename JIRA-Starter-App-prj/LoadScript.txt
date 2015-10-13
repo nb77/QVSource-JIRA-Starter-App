@@ -1,0 +1,78 @@
+﻿///$tab Change Log
+/*
+
+0.0.8 - 13/10/15
+----------------
+* Initial version.
+
+*/
+///$tab Config
+SET ThousandSep=',';
+SET DecimalSep='.';
+SET MoneyThousandSep=',';
+SET MoneyDecimalSep='.';
+SET MoneyFormat='£#,##0.00;-£#,##0.00';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='DD/MM/YYYY';
+SET TimestampFormat='DD/MM/YYYY hh:mm:ss[.fff]';
+SET MonthNames='Jan;Feb;Mar;Apr;May;Jun;Jul;Aug;Sep;Oct;Nov;Dec';
+SET DayNames='Mon;Tue;Wed;Thu;Fri;Sat;Sun';
+
+///$tab Get Projects
+SUB getProjects
+
+	// START SETUP
+	
+	// You can set this to your own app name.
+	LET vQVSourceAppId = 'JIRA_Demo_App';
+	
+	// This could be updated to point to a different server / port.
+	LET vBaseUrl = 'http://localhost:5555';
+	
+	// This could be &loadAccessToken=1a2b3c4d for QVSource web edition.
+	LET vLoadAccessToken = '';
+
+	// END SETUP
+
+	JIRAConnector_AllProjects:
+	LOAD
+	    expand as AllProjectsexpand,
+	    self as AllProjectsself,
+	    id as AllProjectsid,
+	    key as AllProjectskey,
+	    name as AllProjectsname,
+	    projectTypeKey as AllProjectsprojectTypeKey
+	FROM
+	[$(vBaseUrl)/QVSource/JIRAConnector/?table=AllProjects&appId=$(vQVSourceAppId)$(vLoadAccessToken)]
+	(qvx);
+
+ENDSUB
+///$tab Get Issues
+SUB getIssues
+
+	LET noRows = NoOfRows('JIRAConnector_AllProjects');
+	
+	TRACE 'Getting Issues for $(noRows) Projects...';
+	
+	FOR i=0 to $(noRows)-1
+	
+		LET project_key = peek('AllProjectskey', $(i), 'JIRAConnector_AllProjects');
+				
+		JIRAConnector_AllIssues:
+		LOAD
+			'$(project_key)' as AllIssuesProjectKey,
+		    key as AllIssueskey,
+		    fields_issuetype_name as AllIssuesfields_issuetype_name,
+		    fields_aggregatetimespent as AllIssuesfields_aggregatetimespent,
+		    fields_priority_name as AllIssuesfields_priority_name,
+		    fields_status_name as AllIssuesfields_status_name
+		FROM
+		[$(vBaseUrl)/QVSource/JIRAConnector/?table=AllIssues&baseColumnsOnFirstPageOfResults=True&projectIdOrKey=$(project_key)&appId=$(vQVSourceAppId)$(vLoadAccessToken)]
+		(qvx);
+
+	NEXT
+	
+ENDSUB
+///$tab Main
+call getProjects;
+call getIssues;
