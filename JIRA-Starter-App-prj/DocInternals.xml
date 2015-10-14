@@ -43,6 +43,15 @@
     <String>17</String>
     <String>1</String>
     <String>JIRAConnector_AllIssues</String>
+    <String>18</String>
+    <String>1</String>
+    <String>JIRAConnector_AllIssues</String>
+    <String>19</String>
+    <String>1</String>
+    <String>JIRAConnector_AllIssues</String>
+    <String>20</String>
+    <String>1</String>
+    <String>JIRAConnector_AllIssues</String>
   </FieldSrcTables>
   <TableViewData></TableViewData>
   <Bookmarks></Bookmarks>
@@ -95,6 +104,8 @@
           <String>AllIssuesfields_issuetype_name</String>
           <String>AllIssuesfields_priority_name</String>
           <String>AllIssuesfields_status_name</String>
+          <String>AllIssuesfields_created</String>
+          <String>AllIssuesfields_createdMonth</String>
         </FieldNames>
       </FieldTagData>
       <FieldTagData>
@@ -113,6 +124,8 @@
           <String>AllIssuesfields_issuetype_name</String>
           <String>AllIssuesfields_priority_name</String>
           <String>AllIssuesfields_status_name</String>
+          <String>AllIssuesfields_created</String>
+          <String>AllIssuesfields_createdMonth</String>
         </FieldNames>
       </FieldTagData>
       <FieldTagData>
@@ -122,6 +135,7 @@
           <String>$Fields</String>
           <String>$FieldNo</String>
           <String>AllProjectsid</String>
+          <String>AllIssuesid</String>
         </FieldNames>
       </FieldTagData>
       <FieldTagData>
@@ -131,6 +145,7 @@
           <String>$Fields</String>
           <String>$FieldNo</String>
           <String>AllProjectsid</String>
+          <String>AllIssuesid</String>
         </FieldNames>
       </FieldTagData>
     </ScriptBased>

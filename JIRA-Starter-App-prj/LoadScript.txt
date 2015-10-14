@@ -57,18 +57,51 @@ SUB getIssues
 	FOR i=0 to $(noRows)-1
 	
 		LET project_key = peek('AllProjectskey', $(i), 'JIRAConnector_AllProjects');
-				
-		JIRAConnector_AllIssues:
-		LOAD
-			'$(project_key)' as AllIssuesProjectKey,
-		    key as AllIssueskey,
-		    fields_issuetype_name as AllIssuesfields_issuetype_name,
-		    fields_aggregatetimespent as AllIssuesfields_aggregatetimespent,
-		    fields_priority_name as AllIssuesfields_priority_name,
-		    fields_status_name as AllIssuesfields_status_name
-		FROM
-		[$(vBaseUrl)/QVSource/JIRAConnector/?table=AllIssues&baseColumnsOnFirstPageOfResults=True&projectIdOrKey=$(project_key)&appId=$(vQVSourceAppId)$(vLoadAccessToken)]
-		(qvx);
+		
+		FOR j=0 to 11
+	
+			LET vMonthsBack = 12 - $(j);
+		
+			// Here we use Num to store the numeric form of date in vDate
+			// See http://www.qlikviewaddict.com/2012/12/the-qlikview-dual-function.html
+			LET vDate=Num(AddMonths(Today(),-$(vMonthsBack)));
+			LET vStart=MonthStart($(vDate));
+			LET vEnd=MonthEnd($(vDate));
+			
+			// Convert to DD-MM-YYYY
+			LET vStart=Date(vStart, 'DD-MM-YYYY');
+			LET vEnd=Date(vEnd, 'DD-MM-YYYY');
+			
+			LET vMonth=MonthName($(vDate));
+			LET vYear=YearName($(vYear));
+			// TODO I think we could create a dual value here to represent Month/Year and use it below...
+			// This would fix the chart which is currently sorted alphabetically
+			
+			//TRACE 'Getting Issues for $(project_key) for $(vStart) - $(vEnd)';
+			TRACE 'Gettings Issues for $(project_key) for $(vMonth) $(vYear)';
+
+			// Ignore errors - there might not be any issues for a particular time period.
+			LET ERRORMODE=0;
+			
+			JIRAConnector_AllIssues:
+			LOAD
+				'$(project_key)' as AllIssuesProjectKey,
+				id as AllIssuesid,
+			    key as AllIssueskey,
+			    fields_issuetype_name as AllIssuesfields_issuetype_name,
+			    fields_aggregatetimespent as AllIssuesfields_aggregatetimespent,
+			    fields_priority_name as AllIssuesfields_priority_name,
+			    fields_status_name as AllIssuesfields_status_name,
+			    fields_created as AllIssuesfields_created,
+			    '$(vMonth) $(vYear)' as AllIssuesfields_createdMonth
+			FROM
+			// TODO note this uses created (not updated) dates
+			[$(vBaseUrl)/QVSource/JIRAConnector/?table=AllIssues&baseColumnsOnFirstPageOfResults=True&projectIdOrKey=$(project_key)&createdAfter=$(vStart)&createdBefore=$(vEnd)&appId=$(vQVSourceAppId)$(vLoadAccessToken)]
+			(qvx);
+			
+			LET ERRORMODE=1;
+		
+		NEXT
 
 	NEXT
 	
